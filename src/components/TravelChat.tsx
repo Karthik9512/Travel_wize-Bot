@@ -14,20 +14,24 @@ interface Message {
 
 interface TripDetails {
   destination?: string;
+  currentCity?: string;
   dates?: string;
+  duration?: string;
   travelers?: number;
   budget?: string;
-  style?: string;
+  transport?: string;
   preferences?: string[];
 }
 
 const CONVERSATION_STEPS = [
   'greeting',
   'destination',
-  'dates', 
-  'travelers',
+  'currentCity',
+  'dates',
+  'duration',
   'budget',
-  'style',
+  'transport',
+  'travelers',
   'preferences',
   'itinerary'
 ] as const;
@@ -71,12 +75,14 @@ export const TravelChat: React.FC = () => {
 
   const getAIResponse = (userInput: string, step: ConversationStep): string => {
     const responses = {
-      destination: `Great choice! Now, when are you planning to travel? Please share your travel dates.`,
-      dates: `Perfect! How many travelers will be joining this adventure?`,
-      travelers: `Wonderful! What's your approximate budget for this trip? (e.g., $1000-2000, luxury, budget-friendly)`,
-      budget: `Excellent! What's your travel style? (adventure, relaxation, culture, family, solo, luxury, etc.)`,
-      style: `Amazing! Any specific preferences? (beaches, mountains, city, historical, food, nightlife, shopping, etc.)`,
-      preferences: `Perfect! I'm now creating your personalized itinerary. Let me put together the perfect travel plan for you! ✈️`,
+      destination: `Great choice! What's your current city or starting point?`,
+      currentCity: `Perfect! When are you planning to travel? Please share your travel dates.`,
+      dates: `Excellent! How many days/nights will your trip be?`,
+      duration: `Got it! What's your approximate budget for this trip? (e.g., $1000-2000, luxury, budget-friendly)`,
+      budget: `Wonderful! What's your preferred mode of transport? (flight, train, car, bus, etc.)`,
+      transport: `Perfect! How many people will be traveling?`,
+      travelers: `Great! Any specific preferences? (adventure, culture, relaxation, food, shopping, nightlife, beaches, mountains, historical sites, etc.)`,
+      preferences: `Excellent! I'm now creating your personalized itinerary with the structured format. Let me put together the perfect travel plan for you! ✈️`,
       itinerary: generateItinerary()
     };
     
@@ -84,37 +90,55 @@ export const TravelChat: React.FC = () => {
   };
 
   const generateItinerary = (): string => {
-    const { destination, dates, travelers, budget, style, preferences } = tripDetails;
+    const { destination, currentCity, dates, duration, travelers, budget, transport, preferences } = tripDetails;
     
-    return `🎉 Here's your personalized travel itinerary for ${destination}!
+    return `🎉 **Trip Overview**
+A ${duration} trip from ${currentCity} to ${destination} for ${travelers} ${travelers === 1 ? 'person' : 'people'} with ${budget} budget using ${transport}.
 
-**Trip Overview:**
-📍 Destination: ${destination}
-📅 Dates: ${dates}
-👥 Travelers: ${travelers} ${travelers === 1 ? 'person' : 'people'}
-💰 Budget: ${budget}
-🎯 Style: ${style}
+**Day-by-Day Itinerary**
 
-**Day 1: Arrival & City Exploration**
-• Arrive and check into your accommodation
+**Day 1: Arrival & Initial Exploration**
+• Arrive in ${destination} via ${transport}
+• Check into accommodation and get settled
 • Explore the main city center and local markets
 • Try authentic local cuisine for dinner
+• Evening: Rest and prepare for tomorrow's adventures
 
-**Day 2: Cultural Discovery**
-• Visit historical landmarks and museums
-• Local cultural experiences and guided tours
-• Sunset viewing at popular scenic spots
+**Day 2: Cultural Discovery & Attractions**
+• Morning: Visit historical landmarks and museums
+• Afternoon: Local cultural experiences and guided tours
+• Evening: Sunset viewing at popular scenic spots
+• Dinner at recommended local restaurants
 
-**Day 3: Adventure & Nature**
-• Outdoor activities based on your preferences
-• Nature excursions or beach time
-• Local food experiences and cooking classes
+**Day 3: Adventure & Local Experiences**
+• Outdoor activities based on your preferences: ${preferences?.join(', ')}
+• Nature excursions or city exploration
+• Local food experiences and shopping
+• Departure preparations if final day
 
-**Recommendations:**
-🏨 **Accommodation:** Mid-range hotels with great reviews
-🚗 **Transport:** Local public transport + ride-sharing
-🍜 **Must-try Food:** Local specialties and hidden gem restaurants
-💡 **Tips:** Best times to visit attractions, local customs
+**Food & Dining Suggestions**
+🍜 Try local specialties and street food
+🥘 Visit traditional restaurants for authentic cuisine
+☕ Experience local cafes and food markets
+🍽️ Budget-friendly: Local eateries and food courts
+
+**Travel & Transport Tips**
+🚗 Local transport: Public buses, metro, or ride-sharing
+🎫 Book transport tickets in advance for better prices
+📱 Use local transport apps for easy navigation
+🚶 Walking is great for exploring city centers
+
+**Budget & Money-Saving Tips**
+💰 Use local currency and avoid tourist traps
+🎟️ Look for city tourist passes for multiple attractions
+🏨 Book accommodations in advance for better rates
+💳 Carry both cash and cards for different vendors
+
+**Final Recommendations**
+✈️ Check weather forecast and pack accordingly
+📱 Download offline maps and translation apps
+🏥 Keep emergency contacts and travel insurance handy
+📸 Respect local customs and photography rules
 
 Would you like me to save this itinerary and send it to your email? Just provide your webhook URL for data storage!`;
   };
@@ -126,17 +150,23 @@ Would you like me to save this itinerary and send it to your email? Just provide
       case 'destination':
         updates.destination = userInput;
         break;
+      case 'currentCity':
+        updates.currentCity = userInput;
+        break;
       case 'dates':
         updates.dates = userInput;
         break;
-      case 'travelers':
-        updates.travelers = parseInt(userInput) || 1;
+      case 'duration':
+        updates.duration = userInput;
         break;
       case 'budget':
         updates.budget = userInput;
         break;
-      case 'style':
-        updates.style = userInput;
+      case 'transport':
+        updates.transport = userInput;
+        break;
+      case 'travelers':
+        updates.travelers = parseInt(userInput) || 1;
         break;
       case 'preferences':
         updates.preferences = userInput.split(',').map(p => p.trim());
@@ -210,10 +240,12 @@ Would you like me to save this itinerary and send it to your email? Just provide
     const icons = {
       greeting: <Heart className="w-4 h-4" />,
       destination: <MapPin className="w-4 h-4" />,
+      currentCity: <MapPin className="w-4 h-4" />,
       dates: <Calendar className="w-4 h-4" />,
-      travelers: <Users className="w-4 h-4" />,
+      duration: <Calendar className="w-4 h-4" />,
       budget: <DollarSign className="w-4 h-4" />,
-      style: <Heart className="w-4 h-4" />,
+      transport: <MapPin className="w-4 h-4" />,
+      travelers: <Users className="w-4 h-4" />,
       preferences: <Heart className="w-4 h-4" />,
       itinerary: <MapPin className="w-4 h-4" />
     };
