@@ -53,7 +53,7 @@ export const TravelChat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState<ConversationStep>('destination');
   const [tripDetails, setTripDetails] = useState<TripDetails>({});
-  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookUrl, setWebhookUrl] = useState('https://karthiktheru.app.n8n.cloud/webhook-test/travel-agent');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -212,8 +212,7 @@ Would you like me to save this itinerary and send it to your email? Just provide
   };
 
   const handleWebhookSubmission = async () => {
-    const defaultWebhookUrl = 'https://karthiktheru.app.n8n.cloud/webhook-test/travel-agent';
-    const finalWebhookUrl = webhookUrl || defaultWebhookUrl;
+    const finalWebhookUrl = webhookUrl;
 
     // Parse dates from the dates string
     const [startDate, endDate] = tripDetails.dates?.includes('to') 
@@ -326,16 +325,6 @@ Would you like me to save this itinerary and send it to your email? Just provide
 
       {/* Input */}
       <div className="p-4 bg-white/80 backdrop-blur-sm rounded-b-xl">
-        {currentStep === 'itinerary' && (
-          <div className="mb-4">
-            <Input
-              placeholder="Enter your webhook URL for saving trip data (optional)"
-              value={webhookUrl}
-              onChange={(e) => setWebhookUrl(e.target.value)}
-              className="mb-2"
-            />
-          </div>
-        )}
         
         <form onSubmit={handleSubmit} className="flex gap-2">
           <Input
