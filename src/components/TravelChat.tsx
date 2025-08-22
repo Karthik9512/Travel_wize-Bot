@@ -21,6 +21,7 @@ interface TripDetails {
   budget?: string;
   transport?: string;
   preferences?: string[];
+  email?: string;
 }
 
 const CONVERSATION_STEPS = [
@@ -33,6 +34,7 @@ const CONVERSATION_STEPS = [
   'transport',
   'travelers',
   'preferences',
+  'email',
   'itinerary'
 ] as const;
 
@@ -82,7 +84,8 @@ export const TravelChat: React.FC = () => {
       budget: `Wonderful! What's your preferred mode of transport? (flight, train, car, bus, etc.)`,
       transport: `Perfect! How many people will be traveling?`,
       travelers: `Great! Any specific preferences? (adventure, culture, relaxation, food, shopping, nightlife, beaches, mountains, historical sites, etc.)`,
-      preferences: `Excellent! I'm now creating your personalized itinerary with the structured format. Let me put together the perfect travel plan for you! ✈️`,
+      preferences: `Perfect! What's your email address so I can send you the itinerary?`,
+      email: `Excellent! I'm now creating your personalized itinerary with the structured format. Let me put together the perfect travel plan for you! ✈️`,
       itinerary: generateItinerary()
     };
     
@@ -171,6 +174,9 @@ Would you like me to save this itinerary and send it to your email? Just provide
       case 'preferences':
         updates.preferences = userInput.split(',').map(p => p.trim());
         break;
+      case 'email':
+        updates.email = userInput;
+        break;
     }
     
     setTripDetails(prev => ({ ...prev, ...updates }));
@@ -206,19 +212,31 @@ Would you like me to save this itinerary and send it to your email? Just provide
   };
 
   const handleWebhookSubmission = async () => {
-    if (!webhookUrl) return;
+    const defaultWebhookUrl = 'https://karthiktheru.app.n8n.cloud/webhook-test/travel-agent';
+    const finalWebhookUrl = webhookUrl || defaultWebhookUrl;
+
+    // Parse dates from the dates string
+    const [startDate, endDate] = tripDetails.dates?.includes('to') 
+      ? tripDetails.dates.split(' to ').map(d => d.trim())
+      : [tripDetails.dates, tripDetails.dates];
 
     try {
-      const response = await fetch(webhookUrl, {
+      const response = await fetch(finalWebhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         mode: 'no-cors',
         body: JSON.stringify({
-          tripDetails,
-          timestamp: new Date().toISOString(),
-          source: 'TravelWize AI'
+          "Departure": tripDetails.currentCity || "",
+          "Destination": tripDetails.destination || "",
+          "Start Date": startDate || "",
+          "End Date": endDate || startDate || "",
+          "Travelers": tripDetails.travelers?.toString() || "1",
+          "Budget": tripDetails.budget || "",
+          "Preferences": tripDetails.preferences?.join(', ') || "",
+          "Activity": tripDetails.preferences?.join(', ') || "",
+          "Gmail": tripDetails.email || ""
         }),
       });
 
@@ -247,6 +265,7 @@ Would you like me to save this itinerary and send it to your email? Just provide
       transport: <MapPin className="w-4 h-4" />,
       travelers: <Users className="w-4 h-4" />,
       preferences: <Heart className="w-4 h-4" />,
+      email: <Send className="w-4 h-4" />,
       itinerary: <MapPin className="w-4 h-4" />
     };
     return icons[step];
