@@ -227,15 +227,19 @@ Would you like me to save this itinerary and send it to your email? Just provide
         },
         mode: 'no-cors',
         body: JSON.stringify({
-          "Departure": tripDetails.currentCity || "",
-          "Destination": tripDetails.destination || "",
-          "Start Date": startDate || "",
-          "End Date": endDate || startDate || "",
-          "Travelers": tripDetails.travelers?.toString() || "1",
-          "Budget": tripDetails.budget || "",
-          "Preferences": tripDetails.preferences?.join(', ') || "",
-          "Activity": tripDetails.preferences?.join(', ') || "",
-          "Gmail": tripDetails.email || ""
+          "body": {
+            "chatInput": {
+              "Departure": tripDetails.currentCity || "",
+              "Destination": tripDetails.destination || "",
+              "Start Date": startDate || "",
+              "End Date": endDate || startDate || "",
+              "Travelers": tripDetails.travelers?.toString() || "1",
+              "Budget": tripDetails.budget || "",
+              "Preferences": tripDetails.preferences?.join(', ') || "",
+              "Activity": tripDetails.preferences?.join(', ') || "",
+              "Gmail": tripDetails.email || ""
+            }
+          }
         }),
       });
 
