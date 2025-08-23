@@ -21,6 +21,7 @@ interface TripDetails {
   budget?: string;
   transport?: string;
   preferences?: string[];
+  pace?: string;
   email?: string;
 }
 
@@ -34,6 +35,7 @@ const CONVERSATION_STEPS = [
   'transport',
   'travelers',
   'preferences',
+  'pace',
   'email',
   'itinerary'
 ] as const;
@@ -84,7 +86,8 @@ export const TravelChat: React.FC = () => {
       budget: `Wonderful! What's your preferred mode of transport? (flight, train, car, bus, etc.)`,
       transport: `Perfect! How many people will be traveling?`,
       travelers: `Great! Any specific preferences? (adventure, culture, relaxation, food, shopping, nightlife, beaches, mountains, historical sites, etc.)`,
-      preferences: `Perfect! What's your email address so I can send you the itinerary?`,
+      preferences: `Awesome! What's your preferred travel pace? (slow and relaxed, moderate, fast-paced/packed schedule)`,
+      pace: `Perfect! What's your email address so I can send you the itinerary?`,
       email: `Excellent! I'm now creating your personalized itinerary with the structured format. Let me put together the perfect travel plan for you! ✈️`,
       itinerary: generateItinerary()
     };
@@ -174,6 +177,9 @@ Would you like me to save this itinerary and send it to your email? Just provide
       case 'preferences':
         updates.preferences = userInput.split(',').map(p => p.trim());
         break;
+      case 'pace':
+        updates.pace = userInput;
+        break;
       case 'email':
         updates.email = userInput;
         break;
@@ -231,12 +237,13 @@ Would you like me to save this itinerary and send it to your email? Just provide
             "chatInput": {
               "Departure": tripDetails.currentCity || "",
               "Destination": tripDetails.destination || "",
-              "Start Date": startDate || "",
-              "End Date": endDate || startDate || "",
+              "StartDate": startDate || "",
+              "EndDate": endDate || startDate || "",
               "Travelers": tripDetails.travelers?.toString() || "1",
               "Budget": tripDetails.budget || "",
               "Preferences": tripDetails.preferences?.join(', ') || "",
               "Activity": tripDetails.preferences?.join(', ') || "",
+              "Pace": tripDetails.pace || "",
               "Gmail": tripDetails.email || ""
             }
           }
@@ -268,6 +275,7 @@ Would you like me to save this itinerary and send it to your email? Just provide
       transport: <MapPin className="w-4 h-4" />,
       travelers: <Users className="w-4 h-4" />,
       preferences: <Heart className="w-4 h-4" />,
+      pace: <Calendar className="w-4 h-4" />,
       email: <Send className="w-4 h-4" />,
       itinerary: <MapPin className="w-4 h-4" />
     };
